@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediaFire Scraper — by ryaakbar</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- BG MESH -->
+<div class="mesh-bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="grid-overlay"></div>
+</div>
+
+<!-- TOAST -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <i class="fas fa-fire-flame-curved"></i>
+      </div>
+      <div>
+        <div class="brand-name">MF<span>Scraper</span></div>
+        <div class="brand-sub">MediaFire Link Extractor</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="status-pill" id="statusPill">
+        <div class="status-dot"></div>
+        <span>Online</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <!-- HERO -->
+  <section class="hero-section">
+    <div class="hero-badge">
+      <i class="fas fa-bolt"></i>
+      MediaFire Scraper Pro — Free
+    </div>
+    <h1 class="hero-title">
+      Extract Link MediaFire<br>
+      <span class="grad-text">Seketika & Gratis.</span>
+    </h1>
+    <p class="hero-sub">Dapatkan link download langsung dari URL MediaFire. Nama file, ukuran, tanggal upload — semua dalam satu klik.</p>
+  </section>
+
+  <!-- INPUT CARD -->
+  <section class="input-section">
+    <div class="glass-card input-card">
+      <div class="card-header-bar">
+        <div class="card-header-left">
+          <i class="fas fa-link" style="color:var(--blue-400)"></i>
+          <span>Masukkan URL MediaFire</span>
+        </div>
+        <div class="url-validator" id="urlValidator"></div>
+      </div>
+      <div class="input-body">
+        <div class="url-input-wrap">
+          <i class="fas fa-globe url-icon"></i>
+          <input
+            type="url"
+            id="urlInput"
+            class="url-input"
+            placeholder="https://www.mediafire.com/file/..."
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button class="url-clear" id="urlClear" style="display:none" onclick="clearInput()">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>
+        <button class="scrape-btn" id="scrapeBtn" onclick="scrapeURL()">
+          <i class="fas fa-wand-magic-sparkles"></i>
+          <span>Scrape Sekarang</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+      <div class="input-tips">
+        <span><i class="fas fa-circle-info"></i> Supports: /file/, /view/, /download/ URLs</span>
+        <span><i class="fas fa-shield-halved"></i> Tidak menyimpan URL kamu</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOADING SKELETON -->
+  <section id="loadingSection" class="result-section" style="display:none">
+    <div class="glass-card skeleton-card">
+      <div class="skeleton-header">
+        <div class="skeleton-icon pulse"></div>
+        <div class="skeleton-lines">
+          <div class="skeleton-line w-3/4 pulse"></div>
+          <div class="skeleton-line w-1/2 pulse"></div>
+        </div>
+      </div>
+      <div class="skeleton-grid">
+        <div class="skeleton-badge pulse"></div>
+        <div class="skeleton-badge pulse"></div>
+        <div class="skeleton-badge pulse"></div>
+        <div class="skeleton-badge pulse"></div>
+      </div>
+      <div class="skeleton-btns">
+        <div class="skeleton-btn pulse"></div>
+        <div class="skeleton-btn pulse"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT CARD -->
+  <section id="resultSection" class="result-section" style="display:none">
+    <div class="glass-card result-card" id="resultCard">
+
+      <!-- Result header -->
+      <div class="result-header">
+        <div class="result-file-icon" id="resultFileIcon">
+          <i class="fas fa-file"></i>
+        </div>
+        <div class="result-file-info">
+          <div class="result-filename" id="resultFilename">filename.zip</div>
+          <div class="result-url-preview" id="resultUrlPreview">mediafire.com/...</div>
+        </div>
+        <div class="result-status-badge">
+          <i class="fas fa-circle-check"></i> Berhasil
+        </div>
+      </div>
+
+      <!-- Meta grid -->
+      <div class="meta-grid">
+        <div class="meta-item">
+          <div class="meta-icon" style="background:rgba(59,130,246,0.15);color:#60a5fa">
+            <i class="fas fa-weight-hanging"></i>
+          </div>
+          <div class="meta-body">
+            <div class="meta-label">Ukuran File</div>
+            <div class="meta-value" id="metaSize">—</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-icon" style="background:rgba(168,85,247,0.15);color:#c084fc">
+            <i class="fas fa-file-zipper"></i>
+          </div>
+          <div class="meta-body">
+            <div class="meta-label">Tipe File</div>
+            <div class="meta-value" id="metaType">—</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-icon" style="background:rgba(34,197,94,0.15);color:#4ade80">
+            <i class="fas fa-calendar-days"></i>
+          </div>
+          <div class="meta-body">
+            <div class="meta-label">Tanggal Upload</div>
+            <div class="meta-value" id="metaDate">—</div>
+          </div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-icon" style="background:rgba(251,191,36,0.15);color:#fbbf24">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="meta-body">
+            <div class="meta-label">Waktu Scrape</div>
+            <div class="meta-value" id="metaTime">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Download link box -->
+      <div class="link-box" id="linkBox">
+        <div class="link-box-label">
+          <i class="fas fa-link"></i> Link Download
+        </div>
+        <div class="link-box-url" id="linkBoxUrl">—</div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="action-row">
+        <a id="downloadBtn" href="#" target="_blank" rel="noopener" class="action-btn btn-download">
+          <i class="fas fa-download"></i>
+          <span>Download</span>
+        </a>
+        <button class="action-btn btn-copy" onclick="copyLink()">
+          <i class="fas fa-copy" id="copyIcon"></i>
+          <span id="copyText">Copy Link</span>
+        </button>
+        <button class="action-btn btn-share" onclick="shareLink()">
+          <i class="fas fa-share-nodes"></i>
+          <span>Share</span>
+        </button>
+        <button class="action-btn btn-new" onclick="resetScraper()">
+          <i class="fas fa-rotate-left"></i>
+          <span>Scrape Baru</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ERROR CARD -->
+  <section id="errorSection" class="result-section" style="display:none">
+    <div class="glass-card error-card">
+      <div class="error-inner">
+        <div class="error-icon-wrap">
+          <i class="fas fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <div class="error-title">Gagal Scrape</div>
+          <div class="error-msg" id="errorMsg">Terjadi kesalahan.</div>
+        </div>
+      </div>
+      <button class="retry-btn" onclick="scrapeURL()">
+        <i class="fas fa-rotate-right"></i> Coba Lagi
+      </button>
+    </div>
+  </section>
+
+  <!-- ANALYTICS MINI DASHBOARD -->
+  <section class="analytics-section" id="analyticsSection" style="display:none">
+    <div class="section-title">
+      <i class="fas fa-chart-bar"></i>
+      Analytics
+    </div>
+    <div class="analytics-grid">
+      <div class="analytic-card">
+        <div class="ac-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="ac-num" id="acTotal">0</div>
+        <div class="ac-label">Total Scraped</div>
+      </div>
+      <div class="analytic-card">
+        <div class="ac-icon" style="color:#4ade80"><i class="fas fa-hard-drive"></i></div>
+        <div class="ac-num" id="acSize">0 MB</div>
+        <div class="ac-label">Total Ukuran</div>
+      </div>
+      <div class="analytic-card">
+        <div class="ac-icon" style="color:#c084fc"><i class="fas fa-file-code"></i></div>
+        <div class="ac-num" id="acTopType">—</div>
+        <div class="ac-label">Tipe Terbanyak</div>
+      </div>
+      <div class="analytic-card">
+        <div class="ac-icon" style="color:#fbbf24"><i class="fas fa-clock-rotate-left"></i></div>
+        <div class="ac-num" id="acLastTime">—</div>
+        <div class="ac-label">Terakhir Scrape</div>
+      </div>
+    </div>
+
+    <!-- File type distribution -->
+    <div class="glass-card distribution-card" id="distributionCard" style="display:none">
+      <div class="dist-title">Distribusi Tipe File</div>
+      <div class="dist-bars" id="distBars"></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="history-section" id="historySection" style="display:none">
+    <div class="history-header">
+      <div class="section-title">
+        <i class="fas fa-clock-rotate-left"></i>
+        Riwayat Scrape
+      </div>
+      <button class="clear-history-btn" onclick="clearHistory()">
+        <i class="fas fa-trash"></i> Hapus Semua
+      </button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-divider"></div>
+    <p class="footer-brand">MF<span>Scraper</span></p>
+    <p class="footer-sub">Free forever · by ryaakbar · No data stored</p>
+  </footer>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
